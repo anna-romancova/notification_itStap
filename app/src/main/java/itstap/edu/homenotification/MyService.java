@@ -31,7 +31,7 @@ public class MyService extends Service {
     PrintWriter pw;
     Socket s;
     ServerSocket ss;
-    String msg;
+    String msg="";
     Scanner networkScanner;
 
     public MyService() {
@@ -89,37 +89,40 @@ public class MyService extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(final Intent intent, int flags, int startId) {
+        Log.i("LocalService", "Received start id " + startId + ": " + intent);
 
-        Log.e("int",intent.getFlags()+"");
-        if((msg = intent.getStringExtra("str"))!=null) {
-            Thread tr = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    if(msg!=null){
-                        try {
-                            s=ss.accept();
-                            pw = new PrintWriter(new BufferedOutputStream(s.getOutputStream()));
-                            pw.write(msg);
-                            pw.flush();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-
-                    }
+        if(intent.hasExtra("str")) {
+            msg=intent.getStringExtra("str");
+            try {
+                s=ss.accept();
+                pw = new PrintWriter(new BufferedOutputStream(s.getOutputStream()));
+                pw.write(msg+"\n");
+                pw.flush();
+                networkScanner = new Scanner(s.getInputStream());
+                String fromClient = networkScanner.nextLine();
+                if (fromClient != null) {
+                    Intent in = new Intent(getBaseContext(), MainActivity.class);
+//                            in.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    in.putExtra("f", fromClient);
+                    PendingIntent pi = PendingIntent.getActivity(getBaseContext(), 0, in, PendingIntent.FLAG_UPDATE_CURRENT);
+                    createNotification("Notification Text ", pi);
                 }
-        });
-            tr.start();
-            Log.d("tr1","start");
-        }else {
-            Thread tr2 = new Thread(new Runnable() {
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        } else {
+
+        }
+            final Thread tr2 = new Thread(new Runnable() {
+
                 @Override
                 public void run() {
                     try {
                         s=ss.accept();
                         pw = new PrintWriter(new BufferedOutputStream(s.getOutputStream()));
-                        pw.write("Hi, it's I");
+                        pw.write("Hi, it's I\n");
                         pw.flush();
                         networkScanner = new Scanner(s.getInputStream());
                         String fromClient = networkScanner.nextLine();
@@ -130,17 +133,17 @@ public class MyService extends Service {
                             PendingIntent pi = PendingIntent.getActivity(getBaseContext(), 0, in, PendingIntent.FLAG_UPDATE_CURRENT);
                             createNotification("Notification Text ", pi);
                         }
+
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
 
-
                 }
             });
             tr2.start();
-            Log.d("tr2","start");
+            Log.d("tr","start");
 
-        }
+
 
 //        InetAddress addr = null;
 
@@ -195,8 +198,8 @@ public class MyService extends Service {
 
     @Override
     public void onDestroy() {
-        pw.close();
-        networkScanner.close();
+      /*  pw.close();
+        networkScanner.close();*/
         super.onDestroy();
     }
 
