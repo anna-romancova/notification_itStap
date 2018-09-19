@@ -11,12 +11,10 @@ import java.util.Scanner;
 public class Client implements Runnable {
     private Socket s;
     private Scanner networkScanner;
-    private Scanner consoleScanner;
     private PrintWriter pw;
 
     public Client(Socket s) {
         this.s = s;
-        consoleScanner = new Scanner(System.in);
     }
 
     @Override
@@ -24,16 +22,14 @@ public class Client implements Runnable {
         try {
             networkScanner = new Scanner(s.getInputStream());
             pw = new PrintWriter(new BufferedOutputStream(s.getOutputStream()));
-
             pw.write("Hello \n");
             pw.flush();
-
             while (true) {
                 String fromClient = networkScanner.nextLine();
-                System.out.println(fromClient);
+                MainActivity.newTextView(fromClient);
                 if (fromClient.equals("exit")) break;
                 System.out.println("Answer:");
-                String toClient = consoleScanner.nextLine();
+                String toClient = MainActivity.messageE.toString();
                 pw.write(toClient + "\n");
                 pw.flush();
             }

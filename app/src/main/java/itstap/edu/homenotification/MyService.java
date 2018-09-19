@@ -33,6 +33,7 @@ public class MyService extends Service {
     ServerSocket ss;
     String msg="";
     Scanner networkScanner;
+    String fromClient;
 
     public MyService() {
     }
@@ -42,16 +43,9 @@ public class MyService extends Service {
         super.onCreate();
         notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         try {
-
-
-//          ss =new ServerSocket(4568);
-//            InetAddress   addr = InetAddress.getByName("192.168.1.218");
-            ss =new ServerSocket(58974);
+             ss =new ServerSocket(58974);
             Log.e("host",getIpAddress());
             Log.e("host2",ss.getLocalSocketAddress().toString() +": "+ss.getLocalPort()+"&"+ss.getInetAddress());
-//            s=new Socket("10.0.2.2",6948);
-
-
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -90,58 +84,45 @@ public class MyService extends Service {
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
-        Log.i("LocalService", "Received start id " + startId + ": " + intent);
 
-        if(intent.hasExtra("str")) {
-            msg=intent.getStringExtra("str");
-            try {
-                s=ss.accept();
-                pw = new PrintWriter(new BufferedOutputStream(s.getOutputStream()));
-                pw.write(msg+"\n");
-                pw.flush();
-                networkScanner = new Scanner(s.getInputStream());
-                String fromClient = networkScanner.nextLine();
-                if (fromClient != null) {
-                    Intent in = new Intent(getBaseContext(), MainActivity.class);
-//                            in.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    in.putExtra("f", fromClient);
-                    PendingIntent pi = PendingIntent.getActivity(getBaseContext(), 0, in, PendingIntent.FLAG_UPDATE_CURRENT);
-                    createNotification("Notification Text ", pi);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
-        } else {
-
-        }
             final Thread tr2 = new Thread(new Runnable() {
-
                 @Override
                 public void run() {
                     try {
-                        s=ss.accept();
-                        pw = new PrintWriter(new BufferedOutputStream(s.getOutputStream()));
-                        pw.write("Hi, it's I\n");
+
+                        s = ss.accept();
+                        pw=new PrintWriter(s.getOutputStream());
+                        pw.write("\n");
                         pw.flush();
                         networkScanner = new Scanner(s.getInputStream());
-                        String fromClient = networkScanner.nextLine();
+                        fromClient = networkScanner.nextLine();
                         if (fromClient != null) {
-                            Intent in = new Intent(getBaseContext(), MainActivity.class);
-//                            in.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                            in.putExtra("f", fromClient);
-                            PendingIntent pi = PendingIntent.getActivity(getBaseContext(), 0, in, PendingIntent.FLAG_UPDATE_CURRENT);
-                            createNotification("Notification Text ", pi);
-                        }
+                            Thread tf=new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Intent in = new Intent(getBaseContext(), MainActivity.class);
+                                    in.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                    in.putExtra("f", fromClient);
+                                    PendingIntent pi = PendingIntent.getActivity(getBaseContext(), 0, in, PendingIntent.FLAG_UPDATE_CURRENT);
+                                    createNotification("Notification Text ", pi);
 
+                                }
+                            });
+                            tf.start();
+
+
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
                 }
+
             });
             tr2.start();
-            Log.d("tr","start");
+
+
+
 
 
 
