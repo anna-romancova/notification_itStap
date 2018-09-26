@@ -2,29 +2,39 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="itstap.edu.homenotification">
 
-    <uses-permission android:name="android.permission.INTERNET">
-
-    </uses-permission>
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/msblue"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/msblue"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="itstap.edu.homenotification.MainActivity">
+        <activity android:name=".MainActivity"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <service
-            android:name="itstap.edu.homenotification.MyService"
+            android:name=".MyService"
             android:enabled="true"
             android:exported="true"
             android:process=":proc" />
+
+        <receiver android:name=".MyWidgwt">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/my_widgwt_info" />
+        </receiver>
     </application>
 
 </manifest>

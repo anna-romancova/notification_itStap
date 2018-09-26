@@ -5,12 +5,15 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -31,9 +34,10 @@ public class MyService extends Service {
     PrintWriter pw;
     Socket s;
     ServerSocket ss;
-    String msg="";
+    String msg = "";
     Scanner networkScanner;
     String fromClient;
+    int counter = 0;
 
     public MyService() {
     }
@@ -43,9 +47,9 @@ public class MyService extends Service {
         super.onCreate();
         notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         try {
-             ss =new ServerSocket(58974);
-            Log.e("host",getIpAddress());
-            Log.e("host2",ss.getLocalSocketAddress().toString() +": "+ss.getLocalPort()+"&"+ss.getInetAddress());
+            ss = new ServerSocket(58974);
+            Log.e("host", getIpAddress());
+            Log.e("host2", ss.getLocalSocketAddress().toString() + ": " + ss.getLocalPort() + "&" + ss.getInetAddress());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -53,6 +57,7 @@ public class MyService extends Service {
 
 
     }
+
     public String getIpAddress() {
         String ip = "";
         try {
@@ -86,44 +91,53 @@ public class MyService extends Service {
     public int onStartCommand(final Intent intent, int flags, int startId) {
 
 
-            final Thread tr2 = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
+        final Thread tr2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
 
-                        s = ss.accept();
-                        pw=new PrintWriter(s.getOutputStream());
-                        pw.write("\n");
-                        pw.flush();
-                        networkScanner = new Scanner(s.getInputStream());
-                        fromClient = networkScanner.nextLine();
-                        if (fromClient != null) {
-                            Thread tf=new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Intent in = new Intent(getBaseContext(), MainActivity.class);
-                                    in.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                                    in.putExtra("f", fromClient);
-                                    PendingIntent pi = PendingIntent.getActivity(getBaseContext(), 0, in, PendingIntent.FLAG_UPDATE_CURRENT);
-                                    createNotification("Notification Text ", pi);
+                    s = ss.accept();
+                    pw = new PrintWriter(s.getOutputStream());
+                    pw.write("\n");
+                    pw.flush();
+                    networkScanner = new Scanner(s.getInputStream());
+                    fromClient = networkScanner.nextLine();
+                    if (fromClient != null) {
 
-                                }
-                            });
-                            tf.start();
+                        Thread tf = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Intent in = new Intent(getBaseContext(), MainActivity.class);
+//                                    in.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                in.putExtra("f", fromClient);
+                                PendingIntent pi = PendingIntent.getActivity(getBaseContext(), 0, in, PendingIntent.FLAG_UPDATE_CURRENT);
+                                createNotification(fromClient, pi);
+
+                            }
+                        });
+                        tf.start();
+                        Thread tr = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.my_widgwt);
+                                ComponentName thiWidget = new ComponentName(getBaseContext(), MyWidgwt.class);
+                                remoteViews.setTextViewText(R.id.tvWidg, "" + (++counter));
+                                remoteViews.setImageViewResource(R.id.imgWidg, R.drawable.msred);
+                                AppWidgetManager.getInstance(getBaseContext()).updateAppWidget(thiWidget, remoteViews);
+                            }
+
+                        });
+                        tr.start();
 
 
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+            }
 
-            });
-            tr2.start();
-
-
-
-
+        });
+        tr2.start();
 
 
 //        InetAddress addr = null;
@@ -157,7 +171,7 @@ public class MyService extends Service {
 
 
             builder.setContentTitle(aMessage)  // required
-                    .setSmallIcon(android.R.drawable.ic_popup_reminder) // required
+                    .setSmallIcon(R.drawable.msblue) // required
                     .setContentText(this.getString(R.string.app_name))  // required
                     .setDefaults(Notification.DEFAULT_ALL)
                     .setAutoCancel(true)
@@ -167,7 +181,7 @@ public class MyService extends Service {
             builder = new NotificationCompat.Builder(this, id);
 
             builder.setContentTitle(aMessage)                           // required
-                    .setSmallIcon(android.R.drawable.ic_popup_reminder) // required
+                    .setSmallIcon(R.drawable.msblue) // required
                     .setContentText(this.getString(R.string.app_name))  // required
                     .setDefaults(Notification.DEFAULT_ALL)
                     .setAutoCancel(true)

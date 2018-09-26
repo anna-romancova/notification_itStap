@@ -8,6 +8,7 @@ import android.app.AlertDialog;
 
 
 import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,6 +28,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 
 
@@ -40,12 +42,15 @@ import static android.Manifest.permission.INTERNET;
 
 public class MainActivity extends Activity implements View.OnClickListener {
     private static final int PERMISSION_REQUEST_CODE = 200;
+    private static String CONFIGURE_ACTION="android.appwidget.action.APPWIDGET_CONFIGURE";
     private Button send;
     public static TextView messagesTV;
     public static EditText messageE;
 
+
     public static LinearLayout wrap;
     public static Context context;
+    int v = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,20 +73,26 @@ public class MainActivity extends Activity implements View.OnClickListener {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
-        int result = ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET);
-        if (result == PackageManager.PERMISSION_GRANTED) {
-            startService(new Intent(this, MyService.class));
-        }
+//        stopService(new Intent(this, MyService.class));
+
+
+
         messagesTV = findViewById(R.id.messagesTV);
         send = findViewById(R.id.send);
         messageE = findViewById(R.id.message);
         wrap = findViewById(R.id.wrap);
         send.setOnClickListener(this);
+        int result = ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET);
+        if (result == PackageManager.PERMISSION_GRANTED) {
+            startService(new Intent(this, MyService.class));
+        }
 
         Intent in = getIntent();
         String f = in.getStringExtra("f");
-        int v = 0;
+
+
         if (f != null) {
+            Log.e("froSr",f);
             Log.e("f", f);
             TextView tv = new TextView(this);
             LinearLayout.LayoutParams lparams = new LinearLayout.LayoutParams(
@@ -109,6 +120,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         tv.setText(st);
         wrap.addView(tv);
     }
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -172,14 +185,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     @Override
     protected void onDestroy() {
-
-        stopService(new Intent(this, MyService.class));
         super.onDestroy();
+
     }
 
     public static Context getContext() {
         return context;
     }
+
 
 
 }
