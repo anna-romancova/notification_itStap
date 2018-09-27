@@ -37,7 +37,7 @@ public class MyService extends Service {
     String msg = "";
     Scanner networkScanner;
     String fromClient;
-    int counter = 0;
+    int counter =5;
 
     public MyService() {
     }
@@ -104,6 +104,12 @@ public class MyService extends Service {
                     fromClient = networkScanner.nextLine();
                     if (fromClient != null) {
 
+                        RemoteViews remoteViews=new RemoteViews(getPackageName(),R.layout.my_widgwt);
+                        ComponentName thiWidget=new ComponentName(getBaseContext(),MyWidgwt.class);
+                        remoteViews.setTextViewText(R.id.tvWidg, ""+(++counter));
+                        remoteViews.setImageViewResource(R.id.imgWidg, R.drawable.msred);
+                        AppWidgetManager.getInstance(getApplicationContext()).updateAppWidget(thiWidget, remoteViews);
+
                         Thread tf = new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -116,19 +122,8 @@ public class MyService extends Service {
                             }
                         });
                         tf.start();
-                        Thread tr = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.my_widgwt);
-                                ComponentName thiWidget = new ComponentName(getBaseContext(), MyWidgwt.class);
-                                remoteViews.setTextViewText(R.id.tvWidg, "" + (++counter));
-                                remoteViews.setImageViewResource(R.id.imgWidg, R.drawable.msred);
-                                AppWidgetManager.getInstance(getBaseContext()).updateAppWidget(thiWidget, remoteViews);
-                            }
-
-                        });
-                        tr.start();
-
+                        pw.write("\n");
+                        pw.flush();
 
                     }
                 } catch (IOException e) {
@@ -173,7 +168,7 @@ public class MyService extends Service {
             builder.setContentTitle(aMessage)  // required
                     .setSmallIcon(R.drawable.msblue) // required
                     .setContentText(this.getString(R.string.app_name))  // required
-                    .setDefaults(Notification.DEFAULT_ALL)
+//                    .setDefaults(Notification.DEFAULT_ALL)
                     .setAutoCancel(true)
                     .setContentIntent(pi)
                     .setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
@@ -183,7 +178,7 @@ public class MyService extends Service {
             builder.setContentTitle(aMessage)                           // required
                     .setSmallIcon(R.drawable.msblue) // required
                     .setContentText(this.getString(R.string.app_name))  // required
-                    .setDefaults(Notification.DEFAULT_ALL)
+//                    .setDefaults(Notification.DEFAULT_ALL)
                     .setAutoCancel(true)
                     .setContentIntent(pi);
         }
