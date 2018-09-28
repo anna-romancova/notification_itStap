@@ -12,6 +12,12 @@ import android.widget.RemoteViews;
  * Implementation of App Widget functionality.
  */
 public class MyWidgwt extends AppWidgetProvider {
+    @Override
+    public void onUpdate(Context context, AppWidgetManager appWidgetManager,
+                         int[] appWidgetIds) {
+        // TODO Auto-generated method stub
+        super.onUpdate(context, appWidgetManager, appWidgetIds);
+    }
 
 
 
@@ -23,7 +29,8 @@ public class MyWidgwt extends AppWidgetProvider {
 
     @Override
     public void onDisabled(Context context) {
-        // Enter relevant functionality for when the last widget is disabled
+
+
     }
 }
 

@@ -37,7 +37,7 @@ public class MyService extends Service {
     String msg = "";
     Scanner networkScanner;
     String fromClient;
-    int counter =5;
+    int counter =0;
 
     public MyService() {
     }
@@ -103,12 +103,20 @@ public class MyService extends Service {
                     networkScanner = new Scanner(s.getInputStream());
                     fromClient = networkScanner.nextLine();
                     if (fromClient != null) {
-
+                       /* Intent intent= new Intent(getBaseContext(),MainActivity.class);
+                        intent.putExtra(MainActivity.UPDATE_WIDGET_KEY, true);
+                        PendingIntent pi=PendingIntent.getActivity(
+                                getBaseContext(),
+                                0,
+                                intent,
+                                PendingIntent.FLAG_UPDATE_CURRENT);
                         RemoteViews remoteViews=new RemoteViews(getPackageName(),R.layout.my_widgwt);
                         ComponentName thiWidget=new ComponentName(getBaseContext(),MyWidgwt.class);
                         remoteViews.setTextViewText(R.id.tvWidg, ""+(++counter));
                         remoteViews.setImageViewResource(R.id.imgWidg, R.drawable.msred);
-                        AppWidgetManager.getInstance(getApplicationContext()).updateAppWidget(thiWidget, remoteViews);
+                        remoteViews.setOnClickPendingIntent(R.id.imgWidg, pi);
+                        AppWidgetManager.getInstance(getBaseContext()).updateAppWidget(thiWidget, remoteViews);*/
+                       MainActivity.updateWidget(getBaseContext(),R.drawable.msred,String.valueOf((++counter)));
 
                         Thread tf = new Thread(new Runnable() {
                             @Override
@@ -124,6 +132,7 @@ public class MyService extends Service {
                         tf.start();
                         pw.write("\n");
                         pw.flush();
+                        counter=0;
 
                     }
                 } catch (IOException e) {

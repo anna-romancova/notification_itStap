@@ -9,11 +9,15 @@ import android.app.AlertDialog;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.os.Build;
 import android.os.StrictMode;
 import android.support.v4.app.ActivityCompat;
@@ -27,6 +31,7 @@ import android.view.View;
 
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RemoteViews;
 import android.widget.TextView;
@@ -42,6 +47,7 @@ import static android.Manifest.permission.INTERNET;
 
 public class MainActivity extends Activity implements View.OnClickListener {
     private static final int PERMISSION_REQUEST_CODE = 200;
+    public static final String UPDATE_WIDGET_KEY ="jjj" ;
     private static String CONFIGURE_ACTION="android.appwidget.action.APPWIDGET_CONFIGURE";
     private Button send;
     public static TextView messagesTV;
@@ -50,6 +56,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     public static LinearLayout wrap;
     public static Context context;
+
+
     int v = 0;
 
     @Override
@@ -89,6 +97,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         Intent in = getIntent();
         String f = in.getStringExtra("f");
+        if(getIntent().getBooleanExtra(UPDATE_WIDGET_KEY, false)){
+            updateWidget(getApplicationContext(),R.drawable.msblue,"");
+        }
 
 
         if (f != null) {
@@ -106,6 +117,22 @@ public class MainActivity extends Activity implements View.OnClickListener {
             v++;
         }
 
+
+    }
+    public static void updateWidget(Context context, int image, String st) {
+        Intent intent= new Intent(context,MainActivity.class);
+        intent.putExtra(MainActivity.UPDATE_WIDGET_KEY, true);
+        PendingIntent pi=PendingIntent.getActivity(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        RemoteViews remoteViews=new RemoteViews(context.getPackageName(),R.layout.my_widgwt);
+        ComponentName thiWidget=new ComponentName(context,MyWidgwt.class);
+        remoteViews.setTextViewText(R.id.tvWidg, st);
+        remoteViews.setImageViewResource(R.id.imgWidg,image);
+        remoteViews.setOnClickPendingIntent(R.id.imgWidg, pi);
+        AppWidgetManager.getInstance(context).updateAppWidget(thiWidget, remoteViews);
 
     }
 
